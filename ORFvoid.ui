@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>609</width>
-    <height>132</height>
+    <height>459</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -67,6 +67,50 @@
          <string>Void folder:</string>
         </property>
        </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="jpgfiles_label">
+        <property name="text">
+         <string>JPG files:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLabel" name="jpgorphans_label">
+        <property name="text">
+         <string>Orphaned JPG files:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="voidfiles_label">
+        <property name="text">
+         <string>ORF files to be voided:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="orffiles_label">
+        <property name="text">
+         <string>ORF files:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPlainTextEdit" name="jpgfiles"/>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPlainTextEdit" name="orffiles"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPlainTextEdit" name="voidfiles"/>
+      </item>
+      <item row="1" column="3">
+       <widget class="QPlainTextEdit" name="jpgorphans"/>
       </item>
      </layout>
     </item>

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import sys, os, glob, shutil
+import sys, os, glob, shutil, errno
 from ui_ORFvoid import Ui_MainWindow
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 
@@ -39,6 +39,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def jpgorfmatch(self):
         self.matcher = Matcher(jpgfolder=self.jpgfolder.text(), orffolder=self.orffolder.text())
         self.matcher.match()
+        self.jpgfiles.setPlainText(self.matcher.get_jpgfiles_view())
+        self.orffiles.setPlainText(self.matcher.get_orffiles_view())
+        self.voidfiles.setPlainText(self.matcher.get_voidfiles_view())
+        self.jpgorphans.setPlainText(self.matcher.get_jpgorphans_view())
     
     def voidorf(self):
         if self.matcher:
@@ -54,26 +58,32 @@ class Matcher():
         self.voidfiles = []
         self.jpgorphans = []
 
+    def get_jpgfiles_view(self):
+        return ''.join("{}.JPG\n".format(filename) for filename in self.jpgfiles)
+
+    def get_orffiles_view(self):
+        return ''.join("{}.ORF\n".format(filename) for filename in self.orffiles)
+
+    def get_voidfiles_view(self):
+        return ''.join("{}.ORF\n".format(filename) for filename in self.voidfiles)
+
+    def get_jpgorphans_view(self):
+        return ''.join("{}.JPG\n".format(filename) for filename in self.jpgorphans)
+
     def match(self):
         os.chdir(self.jpgfolder)
         self.jpgfiles = [filename[:-4] for filename in glob.iglob("*.JPG")]
-        print(self.jpgfiles)
         
         os.chdir(self.orffolder)
         self.orffiles = [filename[:-4] for filename in glob.iglob("*.ORF")]
-        print(self.orffiles)
 
         for jpgfile in self.jpgfiles:
             if jpgfile not in self.orffiles:
                 self.jpgorphans.append(jpgfile)
 
-        print(self.jpgorphans)
-
         for orffile in self.orffiles:
             if orffile not in self.jpgfiles:
                 self.voidfiles.append(orffile)
-
-        print(self.voidfiles)
 
     def void(self, voidfolder):
         make_sure_path_exists(voidfolder)
