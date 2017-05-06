@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import sys, os, glob, shutil, errno
+import sys
+import os
+import glob
+import shutil
+import errno
 from ui_ORFvoid import Ui_MainWindow
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-
     def __init__(self):
         super(MainWindow, self).__init__()
 
@@ -23,33 +26,37 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.matcher = None
 
     def jpgfolderDialog(self):
-        foldername = QFileDialog.getExistingDirectory(self, 'Select JPG folder')
+        foldername = QFileDialog.getExistingDirectory(self,
+                                                      'Select JPG folder')
         self.jpgfolder.setText(foldername)
         self.orffolder.setText(foldername)
         self.voidfolder.setText(os.path.join(foldername, "_void"))
 
     def orffolderDialog(self):
-        foldername = QFileDialog.getExistingDirectory(self, 'Select ORF folder')
-        self.orffolder.setText(foldername)  
+        foldername = QFileDialog.getExistingDirectory(self,
+                                                      'Select ORF folder')
+        self.orffolder.setText(foldername)
 
     def voidfolderDialog(self):
-        foldername = QFileDialog.getExistingDirectory(self, 'Select ORF folder')
-        self.voidfolder.setText(foldername)  
+        foldername = QFileDialog.getExistingDirectory(self,
+                                                      'Select ORF folder')
+        self.voidfolder.setText(foldername)
 
     def jpgorfmatch(self):
-        self.matcher = Matcher(jpgfolder=self.jpgfolder.text(), orffolder=self.orffolder.text())
+        self.matcher = Matcher(
+            jpgfolder=self.jpgfolder.text(), orffolder=self.orffolder.text())
         self.matcher.match()
         self.jpgfiles.setPlainText(self.matcher.get_jpgfiles_view())
         self.orffiles.setPlainText(self.matcher.get_orffiles_view())
         self.voidfiles.setPlainText(self.matcher.get_voidfiles_view())
         self.jpgorphans.setPlainText(self.matcher.get_jpgorphans_view())
-    
+
     def voidorf(self):
         if self.matcher:
             self.matcher.void(self.voidfolder.text())
 
+
 class Matcher():
-    
     def __init__(self, jpgfolder, orffolder):
         self.jpgfolder = jpgfolder
         self.orffolder = orffolder
@@ -59,21 +66,25 @@ class Matcher():
         self.jpgorphans = []
 
     def get_jpgfiles_view(self):
-        return ''.join("{}.JPG\n".format(filename) for filename in self.jpgfiles)
+        return ''.join("{}.JPG\n".format(filename)
+                       for filename in self.jpgfiles)
 
     def get_orffiles_view(self):
-        return ''.join("{}.ORF\n".format(filename) for filename in self.orffiles)
+        return ''.join("{}.ORF\n".format(filename)
+                       for filename in self.orffiles)
 
     def get_voidfiles_view(self):
-        return ''.join("{}.ORF\n".format(filename) for filename in self.voidfiles)
+        return ''.join("{}.ORF\n".format(filename)
+                       for filename in self.voidfiles)
 
     def get_jpgorphans_view(self):
-        return ''.join("{}.JPG\n".format(filename) for filename in self.jpgorphans)
+        return ''.join("{}.JPG\n".format(filename)
+                       for filename in self.jpgorphans)
 
     def match(self):
         os.chdir(self.jpgfolder)
         self.jpgfiles = [filename[:-4] for filename in glob.iglob("*.JPG")]
-        
+
         os.chdir(self.orffolder)
         self.orffiles = [filename[:-4] for filename in glob.iglob("*.ORF")]
 
@@ -90,7 +101,9 @@ class Matcher():
 
         for voidfile in self.voidfiles:
             filename = "{}.ORF".format(voidfile)
-            shutil.move(os.path.join(self.orffolder, filename), os.path.join(voidfolder, filename))
+            shutil.move(
+                os.path.join(self.orffolder, filename),
+                os.path.join(voidfolder, filename))
 
 
 def make_sure_path_exists(path):
@@ -100,11 +113,13 @@ def make_sure_path_exists(path):
         if exception.errno != errno.EEXIST:
             raise
 
+
 def main():
     app = QApplication(sys.argv)
     win = MainWindow()
     win.show()
     app.exec_()
+
 
 if __name__ == '__main__':
     sys.exit(main())
