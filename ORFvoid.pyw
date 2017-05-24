@@ -44,7 +44,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def jpgorfmatch(self):
         self.matcher = Matcher(
-            jpgfolder=self.jpgfolder.text(), orffolder=self.orffolder.text())
+            jpgfolder=self.jpgfolder.text(),
+            orffolder=self.orffolder.text(),
+            jpgfolder_include_subfolders=
+            self.jpgfolder_include_subfolders.isChecked(),
+            orffolder_include_subfolders=
+            self.orffolder_include_subfolders.isChecked())
         self.matcher.match()
         self.jpgfiles.setPlainText(self.matcher.get_jpgfiles_view())
         self.orffiles.setPlainText(self.matcher.get_orffiles_view())
@@ -57,53 +62,66 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 class Matcher():
-    def __init__(self, jpgfolder, orffolder):
+    def __init__(self,
+                 jpgfolder,
+                 orffolder,
+                 jpgfolder_include_subfolders=False,
+                 orffolder_include_subfolders=False):
         self.jpgfolder = jpgfolder
         self.orffolder = orffolder
+        self.jpgfolder_include_subfolders = jpgfolder_include_subfolders
+        self.orffolder_include_subfolders = orffolder_include_subfolders
         self.jpgfiles = []
         self.orffiles = []
         self.voidfiles = []
         self.jpgorphans = []
 
+    def get_files_view(self, files):
+        return ''.join("{}\n".format(os.path.basename(file))
+                       for file in files)
+
     def get_jpgfiles_view(self):
-        return ''.join("{}.JPG\n".format(filename)
-                       for filename in self.jpgfiles)
+        return self.get_files_view(self.jpgfiles)
 
     def get_orffiles_view(self):
-        return ''.join("{}.ORF\n".format(filename)
-                       for filename in self.orffiles)
+        return self.get_files_view(self.orffiles)
 
     def get_voidfiles_view(self):
-        return ''.join("{}.ORF\n".format(filename)
-                       for filename in self.voidfiles)
+        return self.get_files_view(self.voidfiles)
 
     def get_jpgorphans_view(self):
-        return ''.join("{}.JPG\n".format(filename)
-                       for filename in self.jpgorphans)
+        return self.get_files_view(self.jpgorphans)
 
     def match(self):
         os.chdir(self.jpgfolder)
-        self.jpgfiles = [filename[:-4] for filename in glob.iglob("*.JPG")]
+        if self.jpgfolder_include_subfolders:
+            self.jpgfiles = glob.glob("**/*.JPG", recursive=True)
+        else:
+            self.jpgfiles = glob.glob("*.JPG")
+        jpglist = get_filenames_from_glob(self.jpgfiles)
 
         os.chdir(self.orffolder)
-        self.orffiles = [filename[:-4] for filename in glob.iglob("*.ORF")]
+        if self.orffolder_include_subfolders:
+            self.orffiles = glob.glob("**/*.ORF", recursive=True)
+        else:
+            self.orffiles = glob.glob("*.ORF")
+        orflist = get_filenames_from_glob(self.orffiles)
 
         for jpgfile in self.jpgfiles:
-            if jpgfile not in self.orffiles:
+            if get_filename_from_path(jpgfile) not in orflist:
                 self.jpgorphans.append(jpgfile)
 
         for orffile in self.orffiles:
-            if orffile not in self.jpgfiles:
+            if get_filename_from_path(orffile) not in jpglist:
                 self.voidfiles.append(orffile)
 
     def void(self, voidfolder):
         make_sure_path_exists(voidfolder)
 
         for voidfile in self.voidfiles:
-            filename = "{}.ORF".format(voidfile)
             shutil.move(
-                os.path.join(self.orffolder, filename),
-                os.path.join(voidfolder, filename))
+                os.path.join(voidfile),
+                os.path.join(voidfolder, os.path.basename(voidfile)))
 
 
 def make_sure_path_exists(path):
@@ -112,6 +130,14 @@ def make_sure_path_exists(path):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
+
+
+def get_filename_from_path(path):
+    return os.path.splitext(os.path.basename(path))[0]
+
+
+def get_filenames_from_glob(iglob):
+    return [get_filename_from_path(path) for path in iglob]
 
 
 def main():
