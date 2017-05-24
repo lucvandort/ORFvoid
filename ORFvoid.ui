@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>609</width>
+    <width>827</width>
     <height>459</height>
    </rect>
   </property>
@@ -65,6 +65,20 @@
        <widget class="QLabel" name="voidfolder_label">
         <property name="text">
          <string>Void folder:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QCheckBox" name="jpgfolder_include_subfolders">
+        <property name="text">
+         <string>Include subfolders</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QCheckBox" name="orffolder_include_subfolders">
+        <property name="text">
+         <string>Include subfolders</string>
         </property>
        </widget>
       </item>
